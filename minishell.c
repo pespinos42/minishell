@@ -6,13 +6,13 @@
 /*   By: pespinos <pespinos@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/14 21:50:19 by pespinos          #+#    #+#             */
-/*   Updated: 2023/07/14 21:50:19 by pespinos         ###   ########.fr       */
+/*   Updated: 2023/07/25 16:25:09 by pespinos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_all	g_data;
+// t_all	g_data;
 
 int	ft_strlen(char const *str)
 {
@@ -150,7 +150,7 @@ void	ft_create_map(void)
 	if (!g_data.map)
 		return ;
 	while (n < g_data.map_elements)
-		g_data.map[n++] = -1;
+		g_data.map[n++] = 1;
 }
 
 void	ft_print_map(void)
@@ -181,6 +181,8 @@ char	*ft_strjoin(char *str1, char *str2)
 	int	c1;
 	int	c2;
 
+    printf("DENTRO DE STRJOIN\nSTR1 -> %s\nSTR2 -> %s\n", str1, str2);
+
 	c1 = 0;
 	c2 = 0;
 	str_result = malloc ((ft_strlen(str1) + ft_strlen(str2) + 1) * sizeof (*str_result));
@@ -197,6 +199,7 @@ char	*ft_strjoin(char *str1, char *str2)
 		c2++;
 	}
 	str_result[c1+c2] = '\0';
+    printf("FINAL DE STRJOIN\n");
 	return (str_result);
 }
 
@@ -247,8 +250,8 @@ int	ft_check_open(char letter, int position)
 	else
 		return (1);
 }
-
-void	ft_check_str(void)
+//1 - OPEN 0 - CLOSE
+int	ft_check_str(void)
 {
 	int	n;
 
@@ -258,20 +261,21 @@ void	ft_check_str(void)
 		if (g_data.str_order[n] == 34)
 		{
 			if (ft_check_open(34, n) == 1)
-				return ;
+				return (1);
 			else
 				n = g_data.close_position + 1;
 		}
 		else if (g_data.str_order[n] == 39)
 		{
 			if (ft_check_open(39, n) == 1)
-				return ;
+				return (1);
 			else
 				n = g_data.close_position + 1;
 		}
 		else
 			n++;
 	}
+    return (0);
 }
 
 //1 - FOUND 0 - NOT FOUND
@@ -293,6 +297,8 @@ char	*ft_expand_var(char *str)
 {
 	char	*str_return;
 
+    printf("DENTRO DE FT_EXPAND_VAR\t\t\t str -> %s\n", str);
+
 	str_return = getenv(str);
 	return (str_return);
 }
@@ -306,7 +312,8 @@ char	*ft_get_word(char *str, int position)
 
 	start = position;
 	len = 0;
-	while (str[position] != ' ' && str[position] != '$' && str[position])
+	while (str[position] != ' ' && str[position] != '$' && str[position]
+        && str[position] != 34 && str[position] != 39)
 	{
 		len++;
 		position++;
@@ -318,6 +325,7 @@ char	*ft_get_word(char *str, int position)
 void	ft_check_env_vars(void)
 {
 	char	*str;
+    char    *expand_var;
 	int	n;
 
 	n = 0;
@@ -330,19 +338,24 @@ void	ft_check_env_vars(void)
 
 	while (g_data.str_order[n])
 	{
-		if (g_data.str_order[n] == '$' && g_data.map[n] != 0)
+		if (g_data.str_order[n] == '$' && g_data.map[n] && 
+            g_data.str_order[n + 1] != 0)
 		{
-			str = ft_strjoin(str, ft_expand_var(ft_get_word(g_data.str_order, n + 1)));
-			//printf("PRUEBA DE CONVERSION ----------------- %s\n", ft_expand_var(ft_get_word(g_data.str_order, n + 1)));
+            printf("DENTRO DE $\n");
+			//str = ft_strjoin(str, ft_expand_var(ft_get_word(g_data.str_order, n + 1)));
+            expand_var = ft_expand_var(ft_get_word(g_data.str_order, n + 1));
+            printf("EXPAND_VAR -> %s\n", expand_var);
+            str = ft_strjoin(str, ft_expand_var(ft_get_word(g_data.str_order, n + 1)));
+			printf("PRUEBA DE CONVERSION ----------------- %s\n", ft_expand_var(ft_get_word(g_data.str_order, n + 1)));
 			n = n + (ft_strlen(ft_get_word(g_data.str_order, n + 1)) + 1);
-			printf("VALOR STR -> %s\n", str);
+            printf("NUEVO VALOR DE N -> %i\n", n);
 		}
 		else
 		{
 			str = ft_straddchar(str, g_data.str_order[n]);
 			n++;
-			printf("VALOR STR -> %s\n", str);
 		}
+        printf("VALOR STR -> %s\t\t\t n = %i\n", str, n);
 	}
 	printf("CADENA CONVERTIDA -> %s\n", str);
 }
@@ -359,11 +372,15 @@ int	main(void)
 		}
 		ft_create_map();
 		ft_print_map();
-		ft_check_str();
-		ft_print_map();
-		ft_check_env_vars();
-		//printf("LONGITUD TOTAL DE CARACTERES SIN CONTAR ESPACIOS -> %i\n", ft_total_length());
-		ft_add_history(g_data.str_order);
+		if (ft_check_str())
+            printf("ERROR -> COMILLAS ABIERTAS\n");
+        else
+        {
+            ft_print_map();
+            ft_check_env_vars();
+            //printf("LONGITUD TOTAL DE CARACTERES SIN CONTAR ESPACIOS -> %i\n", ft_total_length());
+            ft_add_history(g_data.str_order);            
+        }            
 		free (g_data.str_order);
 		g_data.str_order = ft_print_entry("minishell >> ");
 	}
