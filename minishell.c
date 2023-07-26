@@ -339,7 +339,8 @@ void	ft_check_env_vars(void)
 	while (g_data.str_order[n])
 	{
 		if (g_data.str_order[n] == '$' && g_data.map[n] && 
-            g_data.str_order[n + 1] != 0)
+            g_data.str_order[n + 1] != 0 && g_data.str_order[n + 1] != 34 &&
+            g_data.str_order[n + 1] != 39)
 		{
             printf("DENTRO DE $\n");
 			//str = ft_strjoin(str, ft_expand_var(ft_get_word(g_data.str_order, n + 1)));
