@@ -361,8 +361,20 @@ void	ft_check_env_vars(void)
 	printf("CADENA CONVERTIDA -> %s\n", str);
 }
 
+void	ft_control_c(int signal)
+{
+	
+}
+
+void	ft_init_signals()
+{
+	signal(SIGINT, ft_control_c);
+	signal(SIGQUIT, SIG_IGN);
+}
+
 int	main(void)
 {
+	ft_init_signals();
 	g_data.str_order = ft_print_entry("minishell >> ");
 	while (g_data.str_order != NULL)
 	{
