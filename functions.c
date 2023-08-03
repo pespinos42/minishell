@@ -85,10 +85,43 @@ int ft_number_characters(char *str)
     return (n_chars);
 }
 
-// char    *ft_separator(char *str)
-// {
-//     char    *result;
-// }
+char    *ft_separator(char *str)
+{
+     	char    *result;
+	int	n;
+	int	p;
+
+	n = 0;
+	p = 0;
+	result = malloc ((ft_number_characters(str) + 1) * sizeof (*result));
+	if (!result)
+		return (NULL);
+	while (str[n])
+	{
+		if (ft_check_chars(str[n + 1], "<>|") && str[n] != ' ')
+		{
+			result[p] = str[n];
+			p++;
+			result[p] = ' ';
+			p++;
+		}
+		else if (ft_check_chars(str[n], "<>|") && str[n + 1] != ' ')
+		{
+			result[p] = str[n];
+			p++;
+			result[p] = ' ';
+			p++;
+		}
+		else
+		{
+			result[p] = str[n];
+			p++;
+		}
+		n++;
+	}
+	result[p] = '\0';
+	return (result);
+}
 
 //------------------------------------ HASTA AQUI
 
@@ -96,5 +129,6 @@ int main()
 {
     char str[] = "hola|que";
     printf("NUMERO DE CARACTERES FUTUROS -> %i\n", ft_number_characters(str));
+    printf("CADENA FINAL -> %s\n", ft_separator(str));
     return (0);
 }
