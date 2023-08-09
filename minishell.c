@@ -6,7 +6,7 @@
 /*   By: pespinos <pespinos@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/14 21:50:19 by pespinos          #+#    #+#             */
-/*   Updated: 2023/07/25 16:25:09 by pespinos         ###   ########.fr       */
+/*   Updated: 2023/08/09 16:09:11 by pespinos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,34 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	}
 	str[p] = '\0';
 	return (str);
+}
+
+char	*ft_strjoin(char *str1, char *str2)
+{
+	char	*str_result;
+	int	c1;
+	int	c2;
+
+    printf("DENTRO DE STRJOIN\nSTR1 -> %s\nSTR2 -> %s\n", str1, str2);
+
+	c1 = 0;
+	c2 = 0;
+	str_result = malloc ((ft_strlen(str1) + ft_strlen(str2) + 1) * sizeof (*str_result));
+	if (!str_result)
+		return (NULL);
+	while (str1[c1])
+	{
+		str_result[c1] = str1[c1];
+		c1++;
+	}
+	while (str2[c2])
+	{
+		str_result[c1+c2] = str2[c2];
+		c2++;
+	}
+	str_result[c1+c2] = '\0';
+    printf("FINAL DE STRJOIN\n");
+	return (str_result);
 }
 
 int	ft_num_words(char const *s, char c)
@@ -173,34 +201,6 @@ void	ft_fill_map(int start_position, int end_position, int value)
 		g_data.map[n] = value;
 		n++;
 	}
-}
-
-char	*ft_strjoin(char *str1, char *str2)
-{
-	char	*str_result;
-	int	c1;
-	int	c2;
-
-    printf("DENTRO DE STRJOIN\nSTR1 -> %s\nSTR2 -> %s\n", str1, str2);
-
-	c1 = 0;
-	c2 = 0;
-	str_result = malloc ((ft_strlen(str1) + ft_strlen(str2) + 1) * sizeof (*str_result));
-	if (!str_result)
-		return (NULL);
-	while (str1[c1])
-	{
-		str_result[c1] = str1[c1];
-		c1++;
-	}
-	while (str2[c2])
-	{
-		str_result[c1+c2] = str2[c2];
-		c2++;
-	}
-	str_result[c1+c2] = '\0';
-    printf("FINAL DE STRJOIN\n");
-	return (str_result);
 }
 
 char	*ft_straddchar(char *str, char letter)
@@ -329,36 +329,27 @@ void	ft_check_env_vars(void)
 	int	n;
 
 	n = 0;
-
 	str = malloc (0 * sizeof (*str));
 	if (!str)
 		return ;
-
-	printf("VALOR STR -> %s\n", str);
-
 	while (g_data.str_order[n])
 	{
 		if (g_data.str_order[n] == '$' && g_data.map[n] && 
             g_data.str_order[n + 1] != 0 && g_data.str_order[n + 1] != 34 &&
             g_data.str_order[n + 1] != 39)
 		{
-            printf("DENTRO DE $\n");
 			//str = ft_strjoin(str, ft_expand_var(ft_get_word(g_data.str_order, n + 1)));
             expand_var = ft_expand_var(ft_get_word(g_data.str_order, n + 1));
-            printf("EXPAND_VAR -> %s\n", expand_var);
             str = ft_strjoin(str, ft_expand_var(ft_get_word(g_data.str_order, n + 1)));
-			printf("PRUEBA DE CONVERSION ----------------- %s\n", ft_expand_var(ft_get_word(g_data.str_order, n + 1)));
 			n = n + (ft_strlen(ft_get_word(g_data.str_order, n + 1)) + 1);
-            printf("NUEVO VALOR DE N -> %i\n", n);
 		}
 		else
 		{
 			str = ft_straddchar(str, g_data.str_order[n]);
 			n++;
 		}
-        printf("VALOR STR -> %s\t\t\t n = %i\n", str, n);
 	}
-	printf("CADENA CONVERTIDA -> %s\n", str);
+	printf("CADENA RESULTANTE -> %s\n", str);
 }
 
 void	ft_control_c(int signal)
@@ -376,13 +367,10 @@ int	main(void)
 {
 	ft_init_signals();
 	g_data.str_order = ft_print_entry("minishell >> ");
+	if (ft_search_char(';') || ft_search_char('\\'))
+		return (-1);
 	while (g_data.str_order != NULL)
 	{
-		if (ft_search_char(';') || ft_search_char('\\'))
-		{
-			printf("CARACTERES ERRONEOS\n");
-			return (-1);
-		}
 		ft_create_map();
 		ft_print_map();
 		if (ft_check_str())
