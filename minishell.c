@@ -360,8 +360,8 @@ void	ft_control_c(int sig)
 	if (sig == SIGINT)
 	{
 		ioctl(STDIN_FILENO, TIOCSTI, "\n");
-		rl_replace_line("", 0);
-		rl_on_new_line();
+		//rl_replace_line("", 0);
+		//rl_on_new_line();
 	}
 }
 
@@ -389,12 +389,12 @@ int	main(void)
 		if (ft_search_char(';') || ft_search_char('\\'))
 			return (-1);
 		ft_create_map();
-		ft_print_map();
+		//ft_print_map();
 		if (ft_check_str())
             return(printf("ERROR -> COMILLAS ABIERTAS\n"), -1);
         else
         {
-            ft_print_map();
+            //ft_print_map();
             ft_check_env_vars();
             ft_add_history(g_data.str_order);
         }
