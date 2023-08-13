@@ -17,6 +17,8 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <signal.h>
+# include <unistd.h>
+# include <sys/ioctl.h>
 
 typedef struct s_all
 {
@@ -24,6 +26,7 @@ typedef struct s_all
 	int		map_elements;
 	int		close_position;
 	char	*str_order;
+	int		sigint_done;
 }	t_all;
 
 t_all g_data;

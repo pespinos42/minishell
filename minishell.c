@@ -14,6 +14,18 @@
 
 // t_all	g_data;
 
+void	ft_putstr(char *str, int fd)
+{
+	int	n;
+
+	n = 0;
+	while (str[n])
+	{
+		write(fd, &str[n], 1);
+		n++;
+	}
+}
+
 int	ft_strlen(char const *str)
 {
 	int	len;
@@ -343,17 +355,14 @@ void	ft_check_env_vars(void)
 	}
 }
 
-void	ft_control_c(int signal)
+void	ft_control_c(int sig)
 {
-	(void) signal;
-	// rl_on_new_line();
-	// rl_redisplay();
-	// write(1, " ", 1);
-	write(1, "\n", 1);
-	ft_print_entry("minishell >> ");
-	// rl_on_new_line();
-	rl_redisplay();
-	write(1, "HAS HECHO CTRL + C\n", 19);
+	if (sig == SIGINT)
+	{
+		ioctl(STDIN_FILENO, TIOCSTI, "\n");
+		rl_replace_line("", 0);
+		rl_on_new_line();
+	}
 }
 
 int	ft_control_d()
@@ -382,7 +391,7 @@ int	main(void)
 		ft_create_map();
 		ft_print_map();
 		if (ft_check_str())
-            printf("ERROR -> COMILLAS ABIERTAS\n");
+            return(printf("ERROR -> COMILLAS ABIERTAS\n"), -1);
         else
         {
             ft_print_map();
