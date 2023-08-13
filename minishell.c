@@ -6,7 +6,7 @@
 /*   By: pespinos <pespinos@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/14 21:50:19 by pespinos          #+#    #+#             */
-/*   Updated: 2023/08/09 16:09:11 by pespinos         ###   ########.fr       */
+/*   Updated: 2023/08/09 17:35:19 by pespinos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,6 @@ char	*ft_strjoin(char *str1, char *str2)
 	int	c1;
 	int	c2;
 
-    printf("DENTRO DE STRJOIN\nSTR1 -> %s\nSTR2 -> %s\n", str1, str2);
-
 	c1 = 0;
 	c2 = 0;
 	str_result = malloc ((ft_strlen(str1) + ft_strlen(str2) + 1) * sizeof (*str_result));
@@ -88,7 +86,6 @@ char	*ft_strjoin(char *str1, char *str2)
 		c2++;
 	}
 	str_result[c1+c2] = '\0';
-    printf("FINAL DE STRJOIN\n");
 	return (str_result);
 }
 
@@ -297,8 +294,6 @@ char	*ft_expand_var(char *str)
 {
 	char	*str_return;
 
-    printf("DENTRO DE FT_EXPAND_VAR\t\t\t str -> %s\n", str);
-
 	str_return = getenv(str);
 	return (str_return);
 }
@@ -308,8 +303,6 @@ char	*ft_get_word(char *str, int position)
 	int	start;
 	int	len;
 
-	//printf("DENTRO DE FT_GET_WORD\n");
-
 	start = position;
 	len = 0;
 	while (str[position] != ' ' && str[position] != '$' && str[position]
@@ -318,7 +311,6 @@ char	*ft_get_word(char *str, int position)
 		len++;
 		position++;
 	}
-	//printf("CADENA A CORTAR -> %s\nPOSICION INICIAL -> %i\nLONGITUD A CORTAR -> %i\n", str, start, len);
 	return (ft_substr(str, start, len));
 }
 
@@ -349,12 +341,26 @@ void	ft_check_env_vars(void)
 			n++;
 		}
 	}
-	printf("CADENA RESULTANTE -> %s\n", str);
 }
 
 void	ft_control_c(int signal)
 {
-	
+	(void) signal;
+	// rl_on_new_line();
+	// rl_redisplay();
+	// write(1, " ", 1);
+	write(1, "\n", 1);
+	ft_print_entry("minishell >> ");
+	// rl_on_new_line();
+	rl_redisplay();
+	write(1, "HAS HECHO CTRL + C\n", 19);
+}
+
+int	ft_control_d()
+{
+	if (!g_data.str_order)
+		exit(0);
+	return (0);
 }
 
 void	ft_init_signals()
@@ -367,10 +373,12 @@ int	main(void)
 {
 	ft_init_signals();
 	g_data.str_order = ft_print_entry("minishell >> ");
-	if (ft_search_char(';') || ft_search_char('\\'))
-		return (-1);
 	while (g_data.str_order != NULL)
 	{
+		if (ft_control_d())
+			return (-1);
+		if (ft_search_char(';') || ft_search_char('\\'))
+			return (-1);
 		ft_create_map();
 		ft_print_map();
 		if (ft_check_str())
@@ -379,13 +387,11 @@ int	main(void)
         {
             ft_print_map();
             ft_check_env_vars();
-            //printf("LONGITUD TOTAL DE CARACTERES SIN CONTAR ESPACIOS -> %i\n", ft_total_length());
-            ft_add_history(g_data.str_order);            
-        }            
+            ft_add_history(g_data.str_order);
+        }
 		free (g_data.str_order);
 		g_data.str_order = ft_print_entry("minishell >> ");
 	}
-	printf("$USER = %s\n", ft_expand_var("USER"));
 	free (g_data.map);
 	return (0);
 }
