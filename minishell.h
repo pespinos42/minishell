@@ -6,7 +6,7 @@
 /*   By: pespinos <pespinos@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/14 21:59:43 by pespinos          #+#    #+#             */
-/*   Updated: 2023/07/25 16:14:47 by pespinos         ###   ########.fr       */
+/*   Updated: 2023/08/22 19:01:04 by pespinos         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,9 @@ typedef struct s_all
 	int		close_position;
 	char	*str_order;
 	int		sigint_done;
+	int		first_colon;
+	int		count_simple_colon;
+	int		count_double_colon;
 }	t_all;
 
 t_all g_data;
