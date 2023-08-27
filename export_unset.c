@@ -79,7 +79,7 @@ int ft_check_exist_var(char ***env_vars, int n_rows, char *name_var)
         row++;
     }
     if (find == 1)
-        return (1);
+        return (row - 1);
     else
         return (0);
 }
@@ -101,7 +101,6 @@ char    ***ft_unset(char ***env_vars, char *name_var)
             row_old++;
         else
         {
-            //printf("COPIANDO %s - %s\n", env_vars[row_old][0], env_vars[row_old][1]);
             new_env_vars[row_new][0] = env_vars[row_old][0];
             new_env_vars[row_new][1] = env_vars[row_old][1];
             row_new++;
@@ -124,9 +123,12 @@ char    ***ft_export(char ***env_vars, char *name_var, char *value_var)
     n_rows = ft_count_rows(env_vars);
 
     if (ft_check_exist_var(env_vars, n_rows, name_var))
+    {
+        env_vars[ft_check_exist_var(env_vars, n_rows, name_var)][1] = value_var;
         return (env_vars);
+    }
     new_env_vars = ft_allocate_matrix(n_rows + 1, 2);
-    while (row < n_rows - 1)
+    while (row <= n_rows - 1)
     {
         new_env_vars[row][0] = env_vars[row][0];
         new_env_vars[row][1] = env_vars[row][1];
@@ -186,7 +188,7 @@ int main()
 
     ft_print_matrix(str, n_rows, 2);
 
-    str = ft_export(str, "HOLA", "CARAMELO");
+    str = ft_export(str, "HOLA", "HELADO");
     n_rows = ft_count_rows(str);
     printf("NUMERO DE FILAS -> %i\n", n_rows);
     ft_print_matrix(str, n_rows, 2);
