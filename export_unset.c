@@ -11,6 +11,24 @@ int ft_strlen(char *str)
     return (len);
 }
 
+char	*ft_strdup(char *src)
+{
+	char	*str;
+	int		p;
+
+	str = malloc ((ft_strlen(src) + 1) * sizeof (*str));
+	if (!str)
+		return (NULL);
+	p = 0;
+	while (src[p])
+	{
+		str[p] = src[p];
+		p++;
+	}
+	str[p] = '\0';
+	return (str);
+}
+
 int ft_count_rows(char ***str)
 {
     int n_rows = 0;
@@ -82,6 +100,22 @@ int ft_check_exist_var(char ***env_vars, int n_rows, char *name_var)
         return (row - 1);
     else
         return (0);
+}
+
+char	*ft_expand_var(char ***env_vars, char *str)
+{
+	char	*str_return;
+    int     n_rows;
+    int     row;
+
+    n_rows = ft_count_rows(env_vars);
+    row = -1;
+    row = ft_check_exist_var(env_vars, n_rows, str);
+    if (row != -1)
+        return (env_vars[row][1]);
+    else
+        return (NULL);
+	return (str_return);
 }
 
 char    ***ft_unset(char ***env_vars, char *name_var)
@@ -192,6 +226,12 @@ int main()
     n_rows = ft_count_rows(str);
     printf("NUMERO DE FILAS -> %i\n", n_rows);
     ft_print_matrix(str, n_rows, 2);
+
+    printf("\n");
+
+    printf("VALOR DE HOLA -> %s\n", ft_expand_var(str, "HOLA"));
+    printf("VALOR DE ADIOS -> %s\n", ft_expand_var(str, "ADIOS"));
+    printf("VALOR DE BOLA -> %s\n", ft_expand_var(str, "BOLA"));
 
     return (0);
 }
