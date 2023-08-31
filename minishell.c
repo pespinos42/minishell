@@ -177,26 +177,28 @@ char	*ft_print_entry(char *msg)
 	return (str);
 }
 
-void	ft_create_map(void)
+int	*ft_create_map(int n_elements) //SE HA MODIFICADO ESTA FUNCION
 {
+	int	*map;
 	int	n;
 
 	n = 0;
-	g_data.map_elements = ft_strlen(g_data.str_order);
-	g_data.map = malloc (g_data.map_elements * sizeof (*g_data.map));
-	if (!g_data.map)
-		return ;
+	g_data.map_elements = n_elements;
+	map = malloc (n_elements * sizeof (*g_data.map));
+	if (!map)
+		return (NULL);
 	while (n < g_data.map_elements)
-		g_data.map[n++] = 1;
+		map[n++] = 1;
+	return (map);
 }
 
-void	ft_print_map(void)
+void	ft_print_map(int *map) //SE HA MODIFICADO ESTA FUNCION
 {
 	int	n;
 
 	n = 0;
 	while (n < g_data.map_elements)
-		printf("%i ", g_data.map[n++]);
+		printf("%i ", map[n++]);
 	printf("\n");
 }
 
@@ -302,6 +304,73 @@ int	ft_search_char(char letter)
 	return (0);
 }
 
+//GESTION DE COMILLAS------------------------------------------------------------------------
+
+int ft_find_ignore_limit(char *str, int start_position)
+{
+    char    letter_to_find;
+    int     n;
+    int     limit;
+
+    letter_to_find = str[start_position];
+    n = start_position + 1;
+    limit = -2;
+    while (str[n] && limit == -2)
+    {
+        if (str[n] == letter_to_find)
+            limit = n;
+        n++;
+    }
+    return (limit);
+}
+
+char    *ft_convert_colons() //SE HA MODIFICADO ESTA FUNCION
+{
+	char	*str_return;
+    int		ignore_limit;
+    int		n;
+	int		i;
+	int		*new_map;
+
+	new_map = ft_create_map(ft_strlen(g_data.str_order));
+
+	str_return = malloc (100 * sizeof (*str_return));
+	if (!str_return)
+		return (NULL);
+    n = 0;
+	i = 0;
+    ignore_limit = -1;
+    while (g_data.str_order[n])
+    {
+        if (ignore_limit != -1)
+        {
+            if (n == ignore_limit)
+                ignore_limit = -1;
+            else
+			{
+				str_return[i] = g_data.str_order[n];
+				new_map[i++] = g_data.map[n];
+			}
+        }
+        else if (g_data.str_order[n] == '"' || g_data.str_order[n] == '\'')
+            ignore_limit = ft_find_ignore_limit(g_data.str_order, n);
+        else
+		{
+			str_return[i] = g_data.str_order[n];
+			new_map[i++] = g_data.map[n];
+		}
+        n++;
+    }
+	str_return[i] = '\0';
+	printf("FT_CONVERT_COLONS --- LONGITUD DE LA CADENA DEVUELTA = %i\n", ft_strlen(str_return));
+    printf("FT_CONVERT_COLONS --- CADENA DEVUELTA -> %s\n", str_return);
+	g_data.map = new_map;
+	g_data.map_elements = i;
+    return (str_return);
+}
+
+//FIN GESTION DE COMILLAS----------------------------------------------------------------------
+
 char	*ft_expand_var(char *str)
 {
 	char	*str_return;
@@ -326,7 +395,7 @@ char	*ft_get_word(char *str, int position)
 	return (ft_substr(str, start, len));
 }
 
-void	ft_check_env_vars(void)
+char	*ft_check_env_vars(void) //SE HA MODIFICADO ESTA FUNCION
 {
 	char	*str;
     char    *expand_var;
@@ -335,7 +404,7 @@ void	ft_check_env_vars(void)
 	n = 0;
 	str = malloc (0 * sizeof (*str));
 	if (!str)
-		return ;
+		return (NULL);
 	while (g_data.str_order[n])
 	{
 		if (g_data.str_order[n] == '$' && g_data.map[n] && 
@@ -353,6 +422,8 @@ void	ft_check_env_vars(void)
 			n++;
 		}
 	}
+	printf("FT_CHECK_ENV_VARS --- RESULTADO = %s\n", str);
+	return (str);
 }
 
 void	ft_control_c(int sig)
@@ -380,6 +451,8 @@ void	ft_init_signals()
 
 int	main(void)
 {
+	char *str;
+
 	ft_init_signals();
 	g_data.str_order = ft_print_entry("minishell >> ");
 	while (g_data.str_order != NULL)
@@ -388,14 +461,16 @@ int	main(void)
 			return (-1);
 		if (ft_search_char(';') || ft_search_char('\\'))
 			return (-1);
-		ft_create_map();
+		g_data.map = ft_create_map(ft_strlen(g_data.str_order));
 		//ft_print_map();
 		if (ft_check_str())
             return(printf("ERROR -> COMILLAS ABIERTAS\n"), -1);
         else
         {
-            //ft_print_map();
+            ft_print_map(g_data.map);
+			g_data.str_order = ft_convert_colons();
             ft_check_env_vars();
+            ft_print_map(g_data.map);
             ft_add_history(g_data.str_order);
         }
 		free (g_data.str_order);
